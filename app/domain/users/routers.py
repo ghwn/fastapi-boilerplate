@@ -12,7 +12,7 @@ router = APIRouter()
 
 @router.post("", response_model=schemas.User, status_code=status.HTTP_201_CREATED)
 async def create_user(form: schemas.UserCreate, db: Session = Depends(get_db)):
-    user = crud.get_user(db, form.username)
+    user = crud.get_user_by_username(db, form.username)
     if user:
         raise UserAlreadyExistsError(form.username)
     user = crud.create_user(db, form)
@@ -27,7 +27,7 @@ async def get_user_list(offset: int = 0, limit: int = 100, db: Session = Depends
 
 @router.get("/{username}", response_model=schemas.User, status_code=status.HTTP_200_OK)
 async def get_user(username: str, db: Session = Depends(get_db)):
-    user = crud.get_user(db, username)
+    user = crud.get_user_by_username(db, username)
     if not user:
         raise UserDoesNotExistError(username)
     return user

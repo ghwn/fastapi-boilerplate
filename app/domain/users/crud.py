@@ -23,6 +23,6 @@ def get_user_list(db: Session, offset: int = 0, limit: int = 100, **kwargs):
     return user_list
 
 
-def get_user(db: Session, username: str):
+def get_user_by_username(db: Session, username: str):
     user = db.query(models.User).filter_by(username=username).first()
     return user
