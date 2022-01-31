@@ -4,13 +4,13 @@ from app.domain.users import models, schemas
 from app.security import get_password_hash
 
 
-def create_user(db: Session, data: schemas.UserCreate):
-    hashed_password = get_password_hash(data.password)
+def create_user(db: Session, form: schemas.UserCreate):
+    hashed_password = get_password_hash(form.password)
     user = models.User(
-        username=data.username,
+        username=form.username,
         hashed_password=hashed_password,
-        is_active=data.is_active,
-        is_superuser=data.is_superuser,
+        is_active=form.is_active,
+        is_superuser=form.is_superuser,
     )
     db.add(user)
     db.commit()

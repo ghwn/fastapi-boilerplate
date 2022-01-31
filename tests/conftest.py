@@ -61,7 +61,7 @@ def session():
 def user(session):
     return create_user(
         db=session,
-        data=UserCreate(
+        form=UserCreate(
             username="tester",
             password="password",
         ),
