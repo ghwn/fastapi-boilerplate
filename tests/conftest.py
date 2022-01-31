@@ -10,6 +10,7 @@ from app.dependencies import get_db
 from app.domain.users.crud import create_user
 from app.domain.users.schemas import UserCreate
 from app.main import create_app
+from app.security import create_access_token
 
 SQLALCHEMY_DATABASE_URL = f"sqlite:///{ROOT_DIR / 'test.db'}"
 
@@ -65,3 +66,10 @@ def user(session):
             password="password",
         ),
     )
+
+
+@pytest.fixture(scope="function")
+def authorized_client(client, user):
+    access_token = create_access_token({"username": user.username})
+    client.headers = {"Authorization": "Bearer " + access_token}
+    return client

@@ -1,15 +1,16 @@
 import uvicorn
-from fastapi import FastAPI
+from fastapi import Depends, FastAPI
 from sqlalchemy.orm.session import close_all_sessions
 
 from app.database import Base, engine
+from app.dependencies import get_bearer_token
 from app.domain.auth.routers import router as auth
 from app.domain.users.routers import router as users
 
 
 def create_app():
     app_ = FastAPI()
-    app_.include_router(users, prefix="/api/v1/users", tags=["Users"])
+    app_.include_router(users, prefix="/api/v1/users", tags=["Users"], dependencies=[Depends(get_bearer_token)])
     app_.include_router(auth, prefix="/auth", tags=["Auth"])
     return app_
 

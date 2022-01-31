@@ -17,7 +17,7 @@ def get_password_hash(password: str) -> Any:
     return pwd_context.hash(password)
 
 
-def create_access_token(claims: dict, expires_delta: Optional[timedelta] = None):
+def create_access_token(claims: dict, expires_delta: Optional[timedelta] = None) -> str:
     to_encode = claims.copy()
     if expires_delta:
         expire = datetime.utcnow() + expires_delta
@@ -26,3 +26,7 @@ def create_access_token(claims: dict, expires_delta: Optional[timedelta] = None)
     to_encode.update({"exp": expire})
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=JWT_ALGORITHM)
     return encoded_jwt
+
+
+def decode_access_token(access_token: str) -> dict:
+    return jwt.decode(access_token, SECRET_KEY, [JWT_ALGORITHM])
