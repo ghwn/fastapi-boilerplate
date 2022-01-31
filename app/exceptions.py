@@ -7,25 +7,49 @@ class APIException(Exception):
         self.detail = detail
 
 
+class InvalidAuthorizationHeaderTypeError(APIException):
+    def __init__(self):
+        super().__init__(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="The Authorization header is not Bearer token.",
+        )
+
+
+class InvalidAccessTokenError(APIException):
+    def __init__(self):
+        super().__init__(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="The access token is invalid.",
+        )
+
+
 class UserAlreadyExistsError(APIException):
-    def __init__(self, username: str) -> None:
-        detail = f"The user '{username}' already exists."
-        super().__init__(status_code=status.HTTP_400_BAD_REQUEST, detail=detail)
+    def __init__(self, username: str):
+        super().__init__(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"The user '{username}' already exists.",
+        )
 
 
 class UserDoesNotExistError(APIException):
     def __init__(self, username: str = None):
-        detail = f"The user '{username}' does not exist."
-        super().__init__(status_code=status.HTTP_404_NOT_FOUND, detail=detail)
+        super().__init__(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"The user '{username}' does not exist.",
+        )
 
 
 class SubjectAlreadyExistsError(APIException):
     def __init__(self, name: str):
-        detail = f"The subject '{name}' already exist."
-        super().__init__(status_code=status.HTTP_400_BAD_REQUEST, detail=detail)
+        super().__init__(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"The subject '{name}' already exist.",
+        )
 
 
 class SubjectDoesNotExistError(APIException):
     def __init__(self, subject_id: int = None):
-        detail = f"The subject (id: {subject_id}) does not exist."
-        super().__init__(status_code=status.HTTP_404_NOT_FOUND, detail=detail)
+        super().__init__(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"The subject (id: {subject_id}) does not exist.",
+        )
