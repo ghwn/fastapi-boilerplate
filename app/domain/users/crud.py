@@ -9,8 +9,8 @@ def create_user(db: Session, form: schemas.UserCreate):
     user = models.User(
         username=form.username,
         hashed_password=hashed_password,
-        is_active=form.is_active,
-        is_superuser=form.is_superuser,
+        is_active=True,
+        is_superuser=False,
     )
     db.add(user)
     db.commit()

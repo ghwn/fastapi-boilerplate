@@ -39,34 +39,6 @@ def test_create_user_without_password(authorized_client):
     assert response.status_code == 422
 
 
-def test_create_user_with_is_active(authorized_client):
-    response = authorized_client.post(
-        url="/api/v1/users",
-        json={
-            "username": "admin",
-            "password": "password",
-            "is_active": False,
-        },
-    )
-    assert response.status_code == 201
-    response_json = response.json()
-    assert response_json["is_active"] is False
-
-
-def test_create_user_with_is_superuser(authorized_client):
-    response = authorized_client.post(
-        url="/api/v1/users",
-        json={
-            "username": "admin",
-            "password": "password",
-            "is_superuser": True,
-        },
-    )
-    assert response.status_code == 201
-    response_json = response.json()
-    assert response_json["is_superuser"] is True
-
-
 def test_get_users(authorized_client, user):
     response = authorized_client.get(url="/api/v1/users")
     assert response.status_code == 200
