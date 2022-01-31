@@ -1,3 +1,4 @@
+from fastapi.encoders import jsonable_encoder
 from sqlalchemy.orm import Session
 
 from app.domain.users import models, schemas
@@ -26,3 +27,32 @@ def get_user_list(db: Session, offset: int = 0, limit: int = 100, **kwargs):
 def get_user_by_username(db: Session, username: str):
     user = db.query(models.User).filter_by(username=username).first()
     return user
+
+
+def update_user(db: Session, username: str, form: schemas.UserUpdate) -> models.User:
+    params = jsonable_encoder(form, by_alias=False, exclude_unset=False, exclude={"password"})
+    params["hashed_password"] = get_password_hash(form.password)
+    users = db.query(models.User).filter_by(username=username)
+    users.update(params)
+    user = users.first()
+    db.commit()
+    db.refresh(user)
+    return user
+
+
+def patch_user(db: Session, username: str, form: schemas.UserPatch) -> models.User:
+    params = jsonable_encoder(form, by_alias=False, exclude_unset=True, exclude={"password"})
+    if form.password:
+        params["hashed_password"] = get_password_hash(form.password)
+    users = db.query(models.User).filter_by(username=username)
+    users.update(params)
+    user = users.first()
+    db.commit()
+    db.refresh(user)
+    return user
+
+
+def delete_user(db: Session, username: str) -> None:
+    user = db.query(models.User).filter_by(username=username).first()
+    db.delete(user)
+    db.commit()

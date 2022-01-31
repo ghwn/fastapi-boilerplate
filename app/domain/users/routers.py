@@ -31,3 +31,29 @@ async def get_user(username: str, db: Session = Depends(get_db)):
     if not user:
         raise UserDoesNotExistError(username)
     return user
+
+
+@router.put("/{username}", response_model=schemas.User, status_code=status.HTTP_200_OK)
+async def update_user(username: str, form: schemas.UserUpdate, db: Session = Depends(get_db)):
+    user = crud.get_user_by_username(db, username)
+    if not user:
+        raise UserDoesNotExistError(username=username)
+    updated_user = crud.update_user(db, username, form)
+    return updated_user
+
+
+@router.patch("/{username}", response_model=schemas.User, status_code=status.HTTP_200_OK)
+async def patch_user(username: str, form: schemas.UserPatch, db: Session = Depends(get_db)):
+    user = crud.get_user_by_username(db, username)
+    if not user:
+        raise UserDoesNotExistError(username=username)
+    patched_user = crud.patch_user(db, username, form)
+    return patched_user
+
+
+@router.delete("/{username}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_user(username: str, db: Session = Depends(get_db)):
+    user = crud.get_user_by_username(db, username)
+    if not user:
+        raise UserDoesNotExistError(username=username)
+    crud.delete_user(db, username)
