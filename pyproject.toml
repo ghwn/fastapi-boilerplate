@@ -8,6 +8,7 @@ authors = ["Lim Jihwan <ghwn5936@gmail.com>"]
 python = "^3.9"
 fastapi = "^0.73.0"
 uvicorn = {extras = ["standard"], version = "^0.17.1"}
+requests = "^2.27.1"
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.2"
