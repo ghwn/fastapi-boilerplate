@@ -1,10 +1,11 @@
 from typing import List
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, status
 from sqlalchemy.orm import Session
 
 from app.dependencies import get_db
 from app.domain.users import crud, schemas
+from app.exceptions import UserAlreadyExistsError, UserDoesNotExistError
 
 router = APIRouter()
 
@@ -13,7 +14,7 @@ router = APIRouter()
 async def create_user(form: schemas.UserCreate, db: Session = Depends(get_db)):
     user = crud.get_user(db, form.username)
     if user:
-        raise HTTPException(status_code=400, detail=f"The user '{form.username}' already exists.")
+        raise UserAlreadyExistsError(form.username)
     user = crud.create_user(db, form)
     return user
 
@@ -28,5 +29,5 @@ async def get_user_list(offset: int = 0, limit: int = 100, db: Session = Depends
 async def get_user(username: str, db: Session = Depends(get_db)):
     user = crud.get_user(db, username)
     if not user:
-        raise HTTPException(status_code=404, detail=f"The user '{username}' does not exist.")
+        raise UserDoesNotExistError(username)
     return user
