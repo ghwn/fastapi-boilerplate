@@ -10,11 +10,11 @@ router = APIRouter()
 
 
 @router.post("", response_model=schemas.User, status_code=201)
-async def create_user(data: schemas.UserCreate, db: Session = Depends(get_db)):
-    user = crud.get_user(db, data.username)
+async def create_user(form: schemas.UserCreate, db: Session = Depends(get_db)):
+    user = crud.get_user(db, form.username)
     if user:
-        raise HTTPException(status_code=400, detail=f"The user '{data.username}' already exists.")
-    user = crud.create_user(db, data)
+        raise HTTPException(status_code=400, detail=f"The user '{form.username}' already exists.")
+    user = crud.create_user(db, form)
     return user
 
 

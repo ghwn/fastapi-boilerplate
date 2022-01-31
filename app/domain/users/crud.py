@@ -1,10 +1,11 @@
 from sqlalchemy.orm import Session
 
 from app.domain.users import models, schemas
+from app.security import get_password_hash
 
 
 def create_user(db: Session, data: schemas.UserCreate):
-    hashed_password = data.password + "notreallyhashed"
+    hashed_password = get_password_hash(data.password)
     user = models.User(
         username=data.username,
         hashed_password=hashed_password,

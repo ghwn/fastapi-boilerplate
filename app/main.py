@@ -3,12 +3,14 @@ from fastapi import FastAPI
 from sqlalchemy.orm.session import close_all_sessions
 
 from app.database import Base, engine
+from app.domain.auth.routers import router as auth
 from app.domain.users.routers import router as users
 
 
 def create_app():
     app_ = FastAPI()
     app_.include_router(users, prefix="/api/v1/users", tags=["Users"])
+    app_.include_router(auth, prefix="/auth", tags=["Auth"])
     return app_
 
 
