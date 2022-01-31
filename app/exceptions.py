@@ -53,3 +53,11 @@ class SubjectDoesNotExistError(APIException):
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"The subject (id: {subject_id}) does not exist.",
         )
+
+
+class AccessDeniedError(APIException):
+    def __init__(self):
+        super().__init__(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You are not allowed to access.",
+        )

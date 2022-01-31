@@ -3,15 +3,18 @@ from typing import List
 from fastapi import APIRouter, Depends, status
 from sqlalchemy.orm import Session
 
-from app.dependencies import get_db
-from app.domain.users import crud, schemas
-from app.exceptions import UserAlreadyExistsError, UserDoesNotExistError
+from app.dependencies import get_current_user, get_db
+from app.domain.users import crud, models, schemas
+from app.exceptions import AccessDeniedError, UserAlreadyExistsError, UserDoesNotExistError
 
 router = APIRouter()
 
 
-# 일부러 @router.post 등록 안함
-async def create_user(form: schemas.UserCreate, db: Session = Depends(get_db)):
+@router.post("", response_model=schemas.User, status_code=status.HTTP_201_CREATED)
+async def create_user(
+    form: schemas.UserCreate,
+    db: Session = Depends(get_db),
+):
     user = crud.get_user_by_username(db, form.username)
     if user:
         raise UserAlreadyExistsError(form.username)
@@ -20,13 +23,26 @@ async def create_user(form: schemas.UserCreate, db: Session = Depends(get_db)):
 
 
 @router.get("", response_model=List[schemas.User], status_code=status.HTTP_200_OK)
-async def get_user_list(offset: int = 0, limit: int = 100, db: Session = Depends(get_db)):
+async def get_user_list(
+    offset: int = 0,
+    limit: int = 100,
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_user),
+):
+    if not current_user.is_superuser:
+        raise AccessDeniedError()
     user_list = crud.get_user_list(db, offset, limit)
     return user_list
 
 
 @router.get("/{username}", response_model=schemas.User, status_code=status.HTTP_200_OK)
-async def get_user(username: str, db: Session = Depends(get_db)):
+async def get_user(
+    username: str,
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_user),
+):
+    if not current_user.is_superuser and current_user.username != username:
+        raise AccessDeniedError()
     user = crud.get_user_by_username(db, username)
     if not user:
         raise UserDoesNotExistError(username)
@@ -34,7 +50,14 @@ async def get_user(username: str, db: Session = Depends(get_db)):
 
 
 @router.put("/{username}", response_model=schemas.User, status_code=status.HTTP_200_OK)
-async def update_user(username: str, form: schemas.UserUpdate, db: Session = Depends(get_db)):
+async def update_user(
+    username: str,
+    form: schemas.UserUpdate,
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_user),
+):
+    if not current_user.is_superuser:
+        raise AccessDeniedError()
     user = crud.get_user_by_username(db, username)
     if not user:
         raise UserDoesNotExistError(username=username)
@@ -43,7 +66,16 @@ async def update_user(username: str, form: schemas.UserUpdate, db: Session = Dep
 
 
 @router.patch("/{username}", response_model=schemas.User, status_code=status.HTTP_200_OK)
-async def patch_user(username: str, form: schemas.UserPatch, db: Session = Depends(get_db)):
+async def patch_user(
+    username: str,
+    form: schemas.UserPatch,
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_user),
+):
+    if not current_user.is_superuser and current_user.username != username:
+        raise AccessDeniedError()
+    if not current_user.is_superuser and form.is_superuser:
+        raise AccessDeniedError()
     user = crud.get_user_by_username(db, username)
     if not user:
         raise UserDoesNotExistError(username=username)
@@ -52,7 +84,13 @@ async def patch_user(username: str, form: schemas.UserPatch, db: Session = Depen
 
 
 @router.delete("/{username}", status_code=status.HTTP_204_NO_CONTENT)
-async def delete_user(username: str, db: Session = Depends(get_db)):
+async def delete_user(
+    username: str,
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_user),
+):
+    if not current_user.is_superuser and current_user.username != username:
+        raise AccessDeniedError()
     user = crud.get_user_by_username(db, username)
     if not user:
         raise UserDoesNotExistError(username=username)

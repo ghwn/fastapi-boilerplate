@@ -47,7 +47,7 @@ def app():
 
 
 @pytest.fixture(scope="session")
-def client(app):
+def guest_client(app):
     return TestClient(app=app)
 
 
@@ -72,10 +72,36 @@ def user(session):
 
 
 @pytest.fixture(scope="function")
-def authorized_client(client, user):
+def user2(session):
+    return create_user(
+        db=session,
+        form=UserCreate(
+            username="tester2",
+            password="password",
+        ),
+    )
+
+
+@pytest.fixture(scope="function")
+def superuser(session, user):
+    user.is_superuser = True
+    session.commit()
+    session.refresh(user)
+    return user
+
+
+@pytest.fixture(scope="function")
+def user_client(guest_client, user):
     access_token = create_access_token({"username": user.username})
-    client.headers = {"Authorization": "Bearer " + access_token}
-    return client
+    guest_client.headers = {"Authorization": "Bearer " + access_token}
+    return guest_client
+
+
+@pytest.fixture(scope="function")
+def superuser_client(guest_client, superuser):
+    access_token = create_access_token({"username": superuser.username})
+    guest_client.headers = {"Authorization": "Bearer " + access_token}
+    return guest_client
 
 
 @pytest.fixture(scope="function")

@@ -1,5 +1,5 @@
-def test_login(client, user):
-    response = client.post(
+def test_login(guest_client, user):
+    response = guest_client.post(
         url="/auth/token",
         json={
             "username": user.username,

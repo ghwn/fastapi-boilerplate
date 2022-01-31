@@ -1,5 +1,5 @@
-def test_create_user_without_username(authorized_client):
-    response = authorized_client.post(
+def test_create_user_without_username(user_client):
+    response = user_client.post(
         url="/api/v1/users",
         json={
             "password": "password",
@@ -8,8 +8,8 @@ def test_create_user_without_username(authorized_client):
     assert response.status_code == 422
 
 
-def test_create_user_without_password(authorized_client):
-    response = authorized_client.post(
+def test_create_user_without_password(user_client):
+    response = user_client.post(
         url="/api/v1/users",
         json={
             "username": "tester",
@@ -18,8 +18,8 @@ def test_create_user_without_password(authorized_client):
     assert response.status_code == 422
 
 
-def test_create_user_with_username_starting_with_non_alphabet(authorized_client):
-    response = authorized_client.post(
+def test_create_user_with_username_starting_with_non_alphabet(user_client):
+    response = user_client.post(
         url="/api/v1/users",
         json={
             "username": "_tester",
@@ -29,8 +29,8 @@ def test_create_user_with_username_starting_with_non_alphabet(authorized_client)
     assert response.status_code == 422
 
 
-def test_create_user_with_too_short_username(authorized_client):
-    response = authorized_client.post(
+def test_create_user_with_too_short_username(user_client):
+    response = user_client.post(
         url="/api/v1/users",
         json={
             "username": "te",
@@ -40,8 +40,8 @@ def test_create_user_with_too_short_username(authorized_client):
     assert response.status_code == 422
 
 
-def test_create_user(client):
-    response = client.post(
+def test_create_user(guest_client):
+    response = guest_client.post(
         url="/api/v1/users",
         json={
             "username": "tester",
@@ -53,23 +53,38 @@ def test_create_user(client):
     assert "password" not in response.json()
 
 
-def test_get_users(authorized_client):
-    response = authorized_client.get(url="/api/v1/users")
+def test_get_users_by_user(user_client):
+    response = user_client.get(url="/api/v1/users")
+    assert response.status_code == 403
+
+
+def test_get_users_by_superuser(superuser_client):
+    response = superuser_client.get(url="/api/v1/users")
     assert response.status_code == 200
 
 
-def test_get_user_404(authorized_client):
-    response = authorized_client.get(url="/api/v1/users/nottester")
+def test_get_user_404(superuser_client):
+    response = superuser_client.get(url="/api/v1/users/nottester")
     assert response.status_code == 404
 
 
-def test_get_user(authorized_client, user):
-    response = authorized_client.get(url=f"/api/v1/users/{user.username}")
+def test_get_user_403(user_client, user2):
+    response = user_client.get(url=f"/api/v1/users/{user2.username}")
+    assert response.status_code == 403
+
+
+def test_get_user(user_client, user):
+    response = user_client.get(url=f"/api/v1/users/{user.username}")
     assert response.status_code == 200
 
 
-def test_update_user_without_password(authorized_client, user):
-    response = authorized_client.put(
+def test_get_other_user(superuser_client, user2):
+    response = superuser_client.get(url=f"/api/v1/users/{user2.username}")
+    assert response.status_code == 200
+
+
+def test_update_user_without_password(user_client, user):
+    response = user_client.put(
         url=f"/api/v1/users/{user.username}",
         json={
             "is_active": False,
@@ -79,8 +94,20 @@ def test_update_user_without_password(authorized_client, user):
     assert response.status_code == 422
 
 
-def test_update_user_404(authorized_client):
-    response = authorized_client.put(
+def test_update_user_404_by_user(user_client):
+    response = user_client.put(
+        url="/api/v1/users/nottester",
+        json={
+            "password": "password",
+            "is_active": False,
+            "is_superuser": False,
+        },
+    )
+    assert response.status_code == 403
+
+
+def test_update_user_404(superuser_client):
+    response = superuser_client.put(
         url="/api/v1/users/nottester",
         json={
             "password": "password",
@@ -91,8 +118,20 @@ def test_update_user_404(authorized_client):
     assert response.status_code == 404
 
 
-def test_update_user(authorized_client, user):
-    response = authorized_client.put(
+def test_update_user_403(user_client, user):
+    response = user_client.put(
+        url=f"/api/v1/users/{user.username}",
+        json={
+            "password": "password",
+            "is_active": False,
+            "is_superuser": False,
+        },
+    )
+    assert response.status_code == 403
+
+
+def test_update_user(superuser_client, user):
+    response = superuser_client.put(
         url=f"/api/v1/users/{user.username}",
         json={
             "password": "password",
@@ -103,18 +142,18 @@ def test_update_user(authorized_client, user):
     assert response.status_code == 200
 
 
-def test_patch_user_404(authorized_client):
-    response = authorized_client.patch(
+def test_patch_user_404_by_user(user_client):
+    response = user_client.patch(
         url="/api/v1/users/nottester",
         json={
             "is_active": False,
         },
     )
-    assert response.status_code == 404
+    assert response.status_code == 403
 
 
-def test_patch_user(authorized_client, user):
-    response = authorized_client.patch(
+def test_patch_user_itself(user_client, user):
+    response = user_client.patch(
         url=f"/api/v1/users/{user.username}",
         json={
             "is_active": False,
@@ -123,11 +162,36 @@ def test_patch_user(authorized_client, user):
     assert response.status_code == 200
 
 
-def test_delete_user_404(authorized_client):
-    response = authorized_client.delete(url="/api/v1/users/nottester")
-    assert response.status_code == 404
+def test_patch_user_with_is_superuser_by_user(user_client, user):
+    response = user_client.patch(
+        url=f"/api/v1/users/{user.username}",
+        json={
+            "is_superuser": True,
+        },
+    )
+    assert response.status_code == 403
 
 
-def test_delete_user(authorized_client, user):
-    response = authorized_client.delete(url=f"/api/v1/users/{user.username}")
+def test_patch_user_with_is_superuser_by_superuser(superuser_client, user):
+    response = superuser_client.patch(
+        url=f"/api/v1/users/{user.username}",
+        json={
+            "is_superuser": True,
+        },
+    )
+    assert response.status_code == 200
+
+
+def test_delete_user_404(user_client):
+    response = user_client.delete(url="/api/v1/users/nottester")
+    assert response.status_code == 403
+
+
+def test_delete_user(user_client, user):
+    response = user_client.delete(url=f"/api/v1/users/{user.username}")
+    assert response.status_code == 204
+
+
+def test_delete_other(superuser_client, user2):
+    response = superuser_client.delete(url=f"/api/v1/users/{user2.username}")
     assert response.status_code == 204
