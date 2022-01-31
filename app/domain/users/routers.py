@@ -1,6 +1,6 @@
 from typing import List
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
 from app.dependencies import get_db
@@ -9,7 +9,7 @@ from app.domain.users import crud, schemas
 router = APIRouter()
 
 
-@router.post("", response_model=schemas.User, status_code=201)
+@router.post("", response_model=schemas.User, status_code=status.HTTP_201_CREATED)
 async def create_user(form: schemas.UserCreate, db: Session = Depends(get_db)):
     user = crud.get_user(db, form.username)
     if user:
@@ -18,13 +18,13 @@ async def create_user(form: schemas.UserCreate, db: Session = Depends(get_db)):
     return user
 
 
-@router.get("", response_model=List[schemas.User], status_code=200)
+@router.get("", response_model=List[schemas.User], status_code=status.HTTP_200_OK)
 async def get_user_list(offset: int = 0, limit: int = 100, db: Session = Depends(get_db)):
     user_list = crud.get_user_list(db, offset, limit)
     return user_list
 
 
-@router.get("/{username}", response_model=schemas.User, status_code=200)
+@router.get("/{username}", response_model=schemas.User, status_code=status.HTTP_200_OK)
 async def get_user(username: str, db: Session = Depends(get_db)):
     user = crud.get_user(db, username)
     if not user:

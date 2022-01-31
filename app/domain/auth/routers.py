@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
 from app.dependencies import get_db
@@ -10,7 +10,7 @@ from app.security import create_access_token, verify_password
 router = APIRouter()
 
 
-@router.post("/signup", response_model=schemas.Token, status_code=201)
+@router.post("/signup", response_model=schemas.Token, status_code=status.HTTP_201_CREATED)
 async def signup(form: schemas.SignupForm, db: Session = Depends(get_db)):
     user = get_user(db, form.username)
     if user:
@@ -28,7 +28,7 @@ async def signup(form: schemas.SignupForm, db: Session = Depends(get_db)):
     return {"token_type": "Bearer", "access_token": access_token}
 
 
-@router.post("/login", response_model=schemas.Token, status_code=200)
+@router.post("/login", response_model=schemas.Token, status_code=status.HTTP_200_OK)
 async def login(form: schemas.LoginForm, db: Session = Depends(get_db)):
     user = get_user(db, form.username)
     if not user:
