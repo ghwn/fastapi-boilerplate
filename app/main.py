@@ -1,12 +1,14 @@
 import uvicorn
-from fastapi import Depends, FastAPI
+from fastapi import Depends, FastAPI, status
 from sqlalchemy.orm.session import close_all_sessions
 
 from app.database import Base, engine
 from app.dependencies import get_bearer_token
 from app.domain.auth.routers import router as auth
 from app.domain.subjects.routers import router as subjects
+from app.domain.users.routers import create_user
 from app.domain.users.routers import router as users
+from app.domain.users.schemas import User
 from app.middlewares import ExceptionHandlingMiddleware
 
 
@@ -17,6 +19,14 @@ def create_app():
         prefix="/api/v1/users",
         tags=["Users"],
         dependencies=[Depends(get_bearer_token)],
+    )
+    app_.add_api_route(
+        path="/api/v1/users",
+        endpoint=create_user,
+        response_model=User,
+        status_code=status.HTTP_201_CREATED,
+        tags=["Users"],
+        methods=["POST"],
     )
     app_.include_router(
         auth,

@@ -10,7 +10,7 @@ from app.exceptions import UserAlreadyExistsError, UserDoesNotExistError
 router = APIRouter()
 
 
-@router.post("", response_model=schemas.User, status_code=status.HTTP_201_CREATED)
+# 일부러 @router.post 등록 안함
 async def create_user(form: schemas.UserCreate, db: Session = Depends(get_db)):
     user = crud.get_user_by_username(db, form.username)
     if user:
