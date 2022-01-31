@@ -59,5 +59,5 @@ class AccessDeniedError(APIException):
     def __init__(self):
         super().__init__(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="You are not allowed to access.",
+            detail="Not enough authority to access this resource.",
         )
