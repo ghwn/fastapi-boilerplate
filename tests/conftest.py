@@ -7,6 +7,8 @@ from sqlalchemy.sql.expression import text
 from app.configs import ROOT_DIR
 from app.database import Base
 from app.dependencies import get_db
+from app.domain.subjects.crud import create_subject
+from app.domain.subjects.schemas import SubjectCreate
 from app.domain.users.crud import create_user
 from app.domain.users.schemas import UserCreate
 from app.main import create_app
@@ -24,6 +26,7 @@ Base.metadata.create_all(bind=engine)
 def run_around_tests():
     # Setup code
     with engine.connect() as conn:
+        conn.execute(text("delete from subjects"))
         conn.execute(text("delete from users"))
     yield
     # Teardown code
@@ -73,3 +76,13 @@ def authorized_client(client, user):
     access_token = create_access_token({"username": user.username})
     client.headers = {"Authorization": "Bearer " + access_token}
     return client
+
+
+@pytest.fixture(scope="function")
+def subject(session):
+    return create_subject(
+        db=session,
+        form=SubjectCreate(
+            name="수학",
+        ),
+    )
