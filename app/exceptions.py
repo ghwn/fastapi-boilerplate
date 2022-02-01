@@ -7,6 +7,14 @@ class APIException(Exception):
         self.detail = detail
 
 
+class InvalidAuthorizationHeaderError(APIException):
+    def __init__(self):
+        super().__init__(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="The Authorization header is invalid.",
+        )
+
+
 class UnsupportedTokenTypeError(APIException):
     def __init__(self):
         super().__init__(
