@@ -20,11 +20,18 @@ def create_user(db: Session, form: schemas.UserCreate):
 
 
 def get_user_list(db: Session, offset: int = 0, limit: int = 100, **kwargs):
-    user_list = db.query(models.User).filter_by(**kwargs).order_by(models.User.id).offset(offset).limit(limit).all()
+    user_list = (
+        db.query(models.User)
+        .filter_by(**kwargs)
+        .order_by(models.User.id)
+        .offset(offset)
+        .limit(limit)
+        .all()
+    )
     return user_list
 
 
-def get_user_by_username(db: Session, username: str):
+def get_user_by_username(db: Session, username: str) -> models.User:
     user = db.query(models.User).filter_by(username=username).first()
     return user
 

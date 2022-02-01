@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 
 from app.database import SessionLocal
 from app.domain.users.crud import get_user_by_username
-from app.exceptions import InvalidAccessTokenError, InvalidAuthorizationHeaderError, UnsupportedTokenTypeError
+from app.exceptions.auth import AuthorizationFailedError
 from app.security import decode_access_token
 
 get_api_key = APIKeyHeader(name="Authorization")
@@ -24,18 +24,24 @@ def get_current_user(
     db: Session = Depends(get_db),
 ):
     try:
-        token_type, access_token = auth_header.split(" ")
+        auth_type, credentials = auth_header.split(" ")
     except ValueError:
-        raise InvalidAuthorizationHeaderError()
-    if token_type == "Bearer":
+        raise AuthorizationFailedError(
+            detail="Authorization header should consist of two parts:"
+            " `auth type` and `credentials`.",
+        )
+    if auth_type == "Bearer":
         try:
-            claims = decode_access_token(access_token)
+            claims = decode_access_token(credentials)
         except JWTError:
-            raise InvalidAccessTokenError()
+            raise AuthorizationFailedError(detail="Unable to parse JWT token.")
+        claim_name = "username"
         try:
-            username = claims["username"]
+            username = claims[claim_name]
         except KeyError:
-            raise InvalidAccessTokenError()
+            raise AuthorizationFailedError(
+                detail=f"'{claim_name}' field is required in the JWT claims.",
+            )
         user = get_user_by_username(db, username)
         return user
-    raise UnsupportedTokenTypeError()
+    raise AuthorizationFailedError(detail=f"'{auth_type}' is not supported auth type.")
