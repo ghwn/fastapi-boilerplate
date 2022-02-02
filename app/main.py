@@ -2,7 +2,7 @@ import uvicorn
 from fastapi import Depends, FastAPI
 from sqlalchemy.orm.session import close_all_sessions
 
-from app.database import Base, engine
+from app.database import engine
 from app.dependencies import get_current_user
 from app.domain.auth.routers import router as auth
 from app.domain.subjects.routers import router as subjects
@@ -37,7 +37,7 @@ app = create_app()
 
 @app.on_event("startup")
 async def startup():
-    Base.metadata.create_all(bind=engine)
+    engine.connect()
 
 
 @app.on_event("shutdown")
