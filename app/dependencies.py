@@ -5,7 +5,8 @@ from sqlalchemy.orm import Session
 
 from app.database import SessionLocal
 from app.domain.users.crud import get_user_by_username
-from app.exceptions import AuthorizationFailedError
+from app.domain.users.models import User
+from app.exceptions import AccessDeniedError, AuthorizationFailedError
 from app.security import decode_access_token
 
 get_api_key = APIKeyHeader(name="Authorization")
@@ -40,6 +41,8 @@ def get_current_user(
             raise AuthorizationFailedError("'username' field cannot be found on JWT claims.")
         user = get_user_by_username(db, username)
         if not user:
-            raise AuthorizationFailedError("Invalid access token.")
+            raise AccessDeniedError()
+        if not user.is_active:
+            raise AccessDeniedError()
         return user
     raise AuthorizationFailedError("Unsupported token type")

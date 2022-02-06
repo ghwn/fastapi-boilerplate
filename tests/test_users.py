@@ -202,27 +202,21 @@ def test_delete_other(superuser_client, user2):
 
 def test_get_users_with_access_token_of_non_existent_user(guest_client, user):
     access_token = create_access_token({"username": "hello"})
-    guest_client.headers = {
-        "Authorization": "Bearer " + access_token,
-    }
+    guest_client.headers = {"Authorization": "Bearer " + access_token}
     response = guest_client.get("/api/v1/users")
-    assert response.status_code == 401
+    assert response.status_code == 403
 
 
 def test_get_users_with_access_token_of_inactive_user(guest_client, inactive_user):
     access_token = create_access_token({"username": inactive_user.username})
-    guest_client.headers = {
-        "Authorization": "Bearer " + access_token,
-    }
+    guest_client.headers = {"Authorization": "Bearer " + access_token}
     response = guest_client.get("/api/v1/users")
     assert response.status_code == 403
 
 
 def test_get_users_with_access_token_of_inactive_superuser(guest_client, inactive_superuser):
     access_token = create_access_token({"username": inactive_superuser.username})
-    guest_client.headers = {
-        "Authorization": "Bearer " + access_token,
-    }
+    guest_client.headers = {"Authorization": "Bearer " + access_token}
     response = guest_client.get("/api/v1/users")
     assert response.status_code == 403
 
