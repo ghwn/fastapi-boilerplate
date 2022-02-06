@@ -19,6 +19,7 @@ def create_app():
         " L%(lineno)s -> %(message)s",
     )
     app_ = FastAPI()
+    app_.add_middleware(ExceptionHandlingMiddleware)
     app_.include_router(
         users,
         prefix="/api/v1/users",
@@ -35,7 +36,6 @@ def create_app():
         tags=["Subjects"],
         dependencies=[Depends(get_current_user)],
     )
-    app_.add_middleware(ExceptionHandlingMiddleware)
     return app_
 
 
