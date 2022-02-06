@@ -5,8 +5,7 @@ from sqlalchemy.orm import Session
 
 from app.dependencies import get_current_user, get_db
 from app.domain.users import crud, models, schemas
-from app.exceptions.auth import AccessDeniedError
-from app.exceptions.users import UserAlreadyExistsError, UserDoesNotExistError
+from app.exceptions import AccessDeniedError, UserAlreadyExistsError, UserDoesNotExistError
 
 router = APIRouter()
 

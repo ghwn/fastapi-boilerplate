@@ -4,7 +4,7 @@ from fastapi.responses import JSONResponse
 from starlette.middleware.base import BaseHTTPMiddleware, RequestResponseEndpoint
 from starlette.responses import Response
 
-from app.exceptions.base import APIException
+from app.exceptions import APIException
 
 
 class ExceptionHandlingMiddleware(BaseHTTPMiddleware):
