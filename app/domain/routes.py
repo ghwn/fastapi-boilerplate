@@ -13,17 +13,16 @@ class APIRequestResponseLoggingRoute(APIRoute):
         async def handle(request: Request) -> Response:
             request_id = uuid4().hex[:8]
 
-            response: Response = await super_route_handler(request)
-            response_body = response.body
-
             request_body = await request.body()
-
             logger.info(
                 "request %s | REQUEST_BODY = %s | %s",
                 request_id,
                 request_body.decode(encoding="UTF-8"),
                 request.headers,
             )
+
+            response: Response = await super_route_handler(request)
+            response_body = response.body
             logger.info(
                 "request %s | STATUS_CODE = %s | RESPONSE_BODY = %s | %s",
                 request_id,
