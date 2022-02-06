@@ -13,7 +13,7 @@ router = APIRouter(route_class=APIRequestResponseLoggingRoute)
 
 @router.post("", response_model=schemas.Subject, status_code=status.HTTP_201_CREATED)
 async def create_subject(form: schemas.SubjectCreate, db: Session = Depends(get_db)):
-    """서브젝트를 생성합니다."""
+    """Create new subject."""
     subject = crud.get_subject_by_name(db, form.name)
     if subject:
         raise SubjectAlreadyExistsError(name=form.name)
@@ -23,7 +23,7 @@ async def create_subject(form: schemas.SubjectCreate, db: Session = Depends(get_
 
 @router.get("/{subject_id}", response_model=schemas.Subject, status_code=status.HTTP_200_OK)
 async def get_subject(subject_id: int, db: Session = Depends(get_db)):
-    """서브젝트 단건을 조회합니다."""
+    """Get an individual subject."""
     subject = crud.get_subject_by_id(db, subject_id)
     if not subject:
         raise SubjectDoesNotExistError(subject_id=subject_id)
@@ -32,7 +32,7 @@ async def get_subject(subject_id: int, db: Session = Depends(get_db)):
 
 @router.get("", response_model=List[schemas.Subject], status_code=status.HTTP_200_OK)
 async def get_subject_list(offset: int = 0, limit: int = 100, db: Session = Depends(get_db)):
-    """서브젝트 목록을 조회합니다."""
+    """Get list of subjects."""
     return crud.get_subject_list(db, offset, limit)
 
 
@@ -40,7 +40,7 @@ async def get_subject_list(offset: int = 0, limit: int = 100, db: Session = Depe
 async def update_subject(
     subject_id: int, form: schemas.SubjectUpdate, db: Session = Depends(get_db)
 ):
-    """서브젝트를 수정합니다."""
+    """Update an existing subject."""
     subject = crud.get_subject_by_id(db, subject_id)
     if not subject:
         raise SubjectDoesNotExistError(subject_id=subject_id)
@@ -52,7 +52,7 @@ async def update_subject(
 async def patch_subject(
     subject_id: int, form: schemas.SubjectPatch, db: Session = Depends(get_db)
 ):
-    """서브젝트 일부분을 수정합니다."""
+    """Partially update an existing subject."""
     subject = crud.get_subject_by_id(db, subject_id)
     if not subject:
         raise SubjectDoesNotExistError(subject_id=subject_id)
@@ -62,7 +62,7 @@ async def patch_subject(
 
 @router.delete("/{subject_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_subject(subject_id: int, db: Session = Depends(get_db)):
-    """서브젝트를 삭제합니다."""
+    """Delete an existing subject."""
     subject = crud.get_subject_by_id(db, subject_id)
     if not subject:
         raise SubjectDoesNotExistError(subject_id=subject_id)

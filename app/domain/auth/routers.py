@@ -13,7 +13,7 @@ router = APIRouter(route_class=APIRequestResponseLoggingRoute)
 
 @router.post("/token", response_model=schemas.Token, status_code=status.HTTP_200_OK)
 async def create_token(form: schemas.LoginForm, db: Session = Depends(get_db)):
-    """토큰을 발급합니다."""
+    """Create new token."""
     user = get_user_by_username(db, form.username)
     if not user:
         raise LoginFailedError("Username or password is not correct.")

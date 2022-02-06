@@ -16,9 +16,7 @@ async def create_user(
     form: schemas.UserCreate,
     db: Session = Depends(get_db),
 ):
-    """
-    사용자를 생성합니다. 누구나 사용자를 새로 만들 수 있도록 별다른 인증을 요구하지 않습니다.
-    """
+    """Create new user."""
     user = crud.get_user_by_username(db, form.username)
     if user:
         raise UserAlreadyExistsError(form.username)
@@ -33,11 +31,7 @@ async def get_user_list(
     db: Session = Depends(get_db),
     current_user: models.User = Depends(get_current_user),
 ):
-    """
-    사용자 목록을 조회합니다. 슈퍼유저 권한이 요구됩니다.
-    """
-    if not current_user.is_active:
-        raise AccessDeniedError()
+    """Get list of users."""
     if not current_user.is_superuser:
         raise AccessDeniedError()
     user_list = crud.get_user_list(db, offset, limit)
@@ -50,11 +44,7 @@ async def get_user(
     db: Session = Depends(get_db),
     current_user: models.User = Depends(get_current_user),
 ):
-    """
-    특정 사용자를 조회합니다. 일반 유저는 자기 자신만 조회할 수 있으며 다른 사용자를 조회하려면 슈퍼유저 권한이 요구됩니다.
-    """
-    if not current_user.is_active:
-        raise AccessDeniedError()
+    """Get an individual user."""
     if not current_user.is_superuser and current_user.username != username:
         raise AccessDeniedError()
     user = crud.get_user_by_username(db, username)
@@ -70,11 +60,7 @@ async def update_user(
     db: Session = Depends(get_db),
     current_user: models.User = Depends(get_current_user),
 ):
-    """
-    사용자를 수정합니다. 슈퍼유저 권한이 요구됩니다.
-    """
-    if not current_user.is_active:
-        raise AccessDeniedError()
+    """Update an existing user."""
     if not current_user.is_superuser:
         raise AccessDeniedError()
     user = crud.get_user_by_username(db, username)
@@ -91,12 +77,7 @@ async def patch_user(
     db: Session = Depends(get_db),
     current_user: models.User = Depends(get_current_user),
 ):
-    """
-    사용자 정보 일부분을 수정합니다. 일반 유저는 자기 자신의 정보만 수정할 수 있습니다.
-    단, `is_superuser` 필드를 수정하려면 슈퍼유저 권한이 있어야 합니다.
-    """
-    if not current_user.is_active:
-        raise AccessDeniedError()
+    """Partially update an existing user."""
     if not current_user.is_superuser and current_user.username != username:
         raise AccessDeniedError()
     if not current_user.is_superuser and form.is_superuser:
@@ -114,11 +95,7 @@ async def delete_user(
     db: Session = Depends(get_db),
     current_user: models.User = Depends(get_current_user),
 ):
-    """
-    사용자를 삭제합니다. 자기 자신만 삭제할 수 있으며 다른 사용자를 삭제하려면 슈퍼유저 권한이 요구됩니다.
-    """
-    if not current_user.is_active:
-        raise AccessDeniedError()
+    """Delete an existing user."""
     if not current_user.is_superuser and current_user.username != username:
         raise AccessDeniedError()
     user = crud.get_user_by_username(db, username)
