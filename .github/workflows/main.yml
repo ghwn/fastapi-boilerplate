@@ -2,6 +2,7 @@ name: FastAPI Boilerplate
 
 env:
   SECRET_KEY: 8b6f185c129f95248c3ac446b64851fd677932f22d9cad4dbca961fb8cfa263b
+#  AWS_REGION: ap-northeast-2
 
 on:
   push:
@@ -55,3 +56,36 @@ jobs:
         run: |
           source .venv/bin/activate
           pytest ./tests
+
+#  continuous-deployment:
+#      needs:
+#        - continuous-integration
+#
+#      runs-on: ubuntu-20.04
+#
+#      steps:
+#        - uses: actions/checkout@v2
+#
+#        - name: Configure AWS credentials
+#          uses: aws-actions/configure-aws-credentials@v1
+#          with:
+#            aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+#            aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+#            aws-region: ${{ env.AWS_REGION }}
+#
+#        - name: Upload to S3
+#          run: |
+#            aws deploy push \
+#              --application-name [Enter application name] \
+#              --description "[Enter description]" \
+#              --ignore-hidden-files \
+#              --s3-location s3://[Enter S3 bucket name]/app.zip \
+#              --source .
+#
+#        - name: Trigger deployment
+#          run: |
+#            aws deploy create-deployment \
+#              --application-name [Enter application name] \
+#              --s3-location bucket=[Enter S3 bucket name],key=app.zip,bundleType=zip \
+#              --deployment-config-name CodeDeployDefault.OneAtATime \
+#              --deployment-group-name [Enter CodeDeploy deployment group name]
