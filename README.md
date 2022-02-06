@@ -1,5 +1,7 @@
 # FastAPI boilerplate
 
+![build-badge](https://github.com/ghwn/fastapi-boilerplate/actions/workflows/main.yml/badge.svg)
+
 ## Set Up
 
 ### Prerequisites
