@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Optional
 
 from fastapi.encoders import jsonable_encoder
 from sqlalchemy.orm import Session
@@ -14,16 +14,25 @@ def create_subject(db: Session, form: schemas.SubjectCreate) -> models.Subject:
     return subject
 
 
-def get_subject_list(db: Session, offset: int = 0, limit: int = 100, **kwargs) -> List[models.Subject]:
-    return db.query(models.Subject).filter_by(**kwargs).order_by(models.Subject.id).offset(offset).limit(limit).all()
+def get_subject_list(
+    db: Session, offset: int = 0, limit: int = 100, **kwargs
+) -> List[models.Subject]:
+    return (
+        db.query(models.Subject)
+        .filter_by(**kwargs)
+        .order_by(models.Subject.id)
+        .offset(offset)
+        .limit(limit)
+        .all()
+    )
 
 
-def get_subject_by_id(db: Session, subject_id: int) -> models.Subject:
-    return db.query(models.Subject).filter_by(id=subject_id).first()
+def get_subject_by_id(db: Session, subject_id: int) -> Optional[models.Subject]:
+    return db.query(models.Subject).get(subject_id)
 
 
-def get_subject_by_name(db: Session, name: str) -> models.Subject:
-    return db.query(models.Subject).filter_by(name=name).first()
+def get_subject_by_name(db: Session, name: str) -> Optional[models.Subject]:
+    return db.query(models.Subject).filter_by(name=name).one_or_none()
 
 
 def update_subject(db: Session, subject_id: int, form: schemas.SubjectUpdate) -> models.Subject:

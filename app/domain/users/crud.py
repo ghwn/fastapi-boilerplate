@@ -1,3 +1,5 @@
+from typing import List, Optional
+
 from fastapi.encoders import jsonable_encoder
 from sqlalchemy.orm import Session
 
@@ -19,13 +21,20 @@ def create_user(db: Session, form: schemas.UserCreate):
     return user
 
 
-def get_user_list(db: Session, offset: int = 0, limit: int = 100, **kwargs):
-    user_list = db.query(models.User).filter_by(**kwargs).order_by(models.User.id).offset(offset).limit(limit).all()
+def get_user_list(db: Session, offset: int = 0, limit: int = 100, **kwargs) -> List[models.User]:
+    user_list = (
+        db.query(models.User)
+        .filter_by(**kwargs)
+        .order_by(models.User.id)
+        .offset(offset)
+        .limit(limit)
+        .all()
+    )
     return user_list
 
 
-def get_user_by_username(db: Session, username: str):
-    user = db.query(models.User).filter_by(username=username).first()
+def get_user_by_username(db: Session, username: str) -> Optional[models.User]:
+    user = db.query(models.User).filter_by(username=username).one_or_none()
     return user
 
 
