@@ -16,6 +16,6 @@ async def create_token(form: schemas.LoginForm, db: Session = Depends(get_db)):
     if not user:
         raise HTTPException(status_code=404, detail=f"The user '{form.username}' does not exist.")
     if not verify_password(form.password, user.hashed_password):
-        raise HTTPException(status_code=401, detail=f"Password does not match.")
+        raise HTTPException(status_code=401, detail="Password does not match.")
     access_token = create_access_token({"username": user.username})
     return {"token_type": "Bearer", "access_token": access_token}
