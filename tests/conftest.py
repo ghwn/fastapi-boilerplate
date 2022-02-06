@@ -14,9 +14,9 @@ from app.domain.users.schemas import UserCreate
 from app.main import create_app
 from app.security import create_access_token
 
-SQLALCHEMY_DATABASE_URL = f"sqlite:///{ROOT_DIR / 'test.db'}"
+DATABASE_URL = f"sqlite:///{ROOT_DIR / 'test.db'}"
 
-engine = create_engine(SQLALCHEMY_DATABASE_URL, echo=True, connect_args={"check_same_thread": False})
+engine = create_engine(DATABASE_URL, echo=True, connect_args={"check_same_thread": False})
 TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 Base.metadata.create_all(bind=engine)
