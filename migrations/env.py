@@ -18,7 +18,6 @@ fileConfig(config.config_file_name)
 # from myapp import mymodel
 # target_metadata = mymodel.Base.metadata
 from app.database import Base
-from app.domain.subjects.models import Subject
 from app.domain.users.models import User
 
 target_metadata = Base.metadata
