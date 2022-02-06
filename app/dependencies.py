@@ -39,5 +39,7 @@ def get_current_user(
         except KeyError:
             raise AuthorizationFailedError("'username' field cannot be found on JWT claims.")
         user = get_user_by_username(db, username)
+        if not user:
+            raise AuthorizationFailedError("Invalid access token.")
         return user
     raise AuthorizationFailedError("Unsupported token type")

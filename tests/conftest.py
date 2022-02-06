@@ -83,11 +83,30 @@ def user2(session):
 
 
 @pytest.fixture(scope="function")
+def inactive_user(session):
+    return create_user(
+        db=session,
+        form=UserCreate(
+            username="inactiveuser",
+            password="password",
+        ),
+    )
+
+
+@pytest.fixture(scope="function")
 def superuser(session, user):
     user.is_superuser = True
     session.commit()
     session.refresh(user)
     return user
+
+
+@pytest.fixture(scope="function")
+def inactive_superuser(session, superuser):
+    superuser.is_active = False
+    session.commit()
+    session.refresh(superuser)
+    return superuser
 
 
 @pytest.fixture(scope="function")

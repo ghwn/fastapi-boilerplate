@@ -1,3 +1,6 @@
+from app.security import create_access_token
+
+
 def test_create_user_without_username(user_client):
     response = user_client.post(
         url="/api/v1/users",
@@ -195,3 +198,74 @@ def test_delete_user(user_client, user):
 def test_delete_other(superuser_client, user2):
     response = superuser_client.delete(url=f"/api/v1/users/{user2.username}")
     assert response.status_code == 204
+
+
+def test_get_users_with_access_token_of_non_existent_user(guest_client, user):
+    access_token = create_access_token({"username": "hello"})
+    guest_client.headers = {
+        "Authorization": "Bearer " + access_token,
+    }
+    response = guest_client.get("/api/v1/users")
+    assert response.status_code == 401
+
+
+def test_get_users_with_access_token_of_inactive_user(guest_client, inactive_user):
+    access_token = create_access_token({"username": inactive_user.username})
+    guest_client.headers = {
+        "Authorization": "Bearer " + access_token,
+    }
+    response = guest_client.get("/api/v1/users")
+    assert response.status_code == 403
+
+
+def test_get_users_with_access_token_of_inactive_superuser(guest_client, inactive_superuser):
+    access_token = create_access_token({"username": inactive_superuser.username})
+    guest_client.headers = {
+        "Authorization": "Bearer " + access_token,
+    }
+    response = guest_client.get("/api/v1/users")
+    assert response.status_code == 403
+
+
+def test_get_user_with_access_token_of_inactive_superuser(guest_client, inactive_superuser, user):
+    access_token = create_access_token({"username": inactive_superuser.username})
+    guest_client.headers = {"Authorization": "Bearer " + access_token}
+    response = guest_client.get(f"/api/v1/users/{user.username}")
+    assert response.status_code == 403
+
+
+def test_update_user_with_access_token_of_inactive_superuser(
+    guest_client, inactive_superuser, user
+):
+    access_token = create_access_token({"username": inactive_superuser.username})
+    guest_client.headers = {"Authorization": "Bearer " + access_token}
+    response = guest_client.put(
+        url=f"/api/v1/users/{user.username}",
+        json={
+            "password": "password",
+            "is_active": False,
+            "is_superuser": False,
+        },
+    )
+    assert response.status_code == 403
+
+
+def test_patch_user_with_access_token_of_inactive_superuser(
+    guest_client, inactive_superuser, user
+):
+    access_token = create_access_token({"username": inactive_superuser.username})
+    guest_client.headers = {"Authorization": "Bearer " + access_token}
+    response = guest_client.patch(
+        url=f"/api/v1/users/{user.username}",
+        json={"is_active": False},
+    )
+    assert response.status_code == 403
+
+
+def test_delete_user_with_access_token_of_inactive_superuser(
+    guest_client, inactive_superuser, user
+):
+    access_token = create_access_token({"username": inactive_superuser.username})
+    guest_client.headers = {"Authorization": "Bearer " + access_token}
+    response = guest_client.delete(url=f"/api/v1/users/{user.username}")
+    assert response.status_code == 403
