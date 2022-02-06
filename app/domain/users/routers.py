@@ -4,10 +4,11 @@ from fastapi import APIRouter, Depends, status
 from sqlalchemy.orm import Session
 
 from app.dependencies import get_current_user, get_db
+from app.domain.routes import APIRequestResponseLoggingRoute
 from app.domain.users import crud, models, schemas
 from app.exceptions import AccessDeniedError, UserAlreadyExistsError, UserDoesNotExistError
 
-router = APIRouter()
+router = APIRouter(route_class=APIRequestResponseLoggingRoute)
 
 
 @router.post("", response_model=schemas.User, status_code=status.HTTP_201_CREATED)

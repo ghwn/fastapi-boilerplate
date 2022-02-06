@@ -1,7 +1,10 @@
+import logging
+
 import uvicorn
 from fastapi import Depends, FastAPI
 from sqlalchemy.orm.session import close_all_sessions
 
+from app import configs
 from app.database import engine
 from app.dependencies import get_current_user
 from app.domain.auth.routers import router as auth
@@ -11,6 +14,11 @@ from app.middlewares import ExceptionHandlingMiddleware
 
 
 def create_app():
+    logging.basicConfig(
+        level=logging.DEBUG if configs.DEBUG else logging.INFO,
+        format="%(levelname)s: %(processName)s %(threadName)s %(pathname)s::%(funcName)s"
+        " L%(lineno)s -> %(message)s",
+    )
     app_ = FastAPI()
     app_.include_router(
         users,

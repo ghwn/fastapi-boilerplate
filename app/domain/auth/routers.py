@@ -3,10 +3,11 @@ from sqlalchemy.orm import Session
 
 from app.dependencies import get_db
 from app.domain.auth import schemas
+from app.domain.routes import APIRequestResponseLoggingRoute
 from app.domain.users.crud import get_user_by_username
 from app.security import create_access_token, verify_password
 
-router = APIRouter()
+router = APIRouter(route_class=APIRequestResponseLoggingRoute)
 
 
 @router.post("/token", response_model=schemas.Token, status_code=status.HTTP_200_OK)

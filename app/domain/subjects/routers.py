@@ -4,10 +4,11 @@ from fastapi import APIRouter, Depends, status
 from sqlalchemy.orm import Session
 
 from app.dependencies import get_db
+from app.domain.routes import APIRequestResponseLoggingRoute
 from app.domain.subjects import crud, schemas
 from app.exceptions import SubjectAlreadyExistsError, SubjectDoesNotExistError
 
-router = APIRouter()
+router = APIRouter(route_class=APIRequestResponseLoggingRoute)
 
 
 @router.post("", response_model=schemas.Subject, status_code=status.HTTP_201_CREATED)
@@ -36,7 +37,9 @@ async def get_subject_list(offset: int = 0, limit: int = 100, db: Session = Depe
 
 
 @router.put("/{subject_id}", response_model=schemas.Subject, status_code=status.HTTP_200_OK)
-async def update_subject(subject_id: int, form: schemas.SubjectUpdate, db: Session = Depends(get_db)):
+async def update_subject(
+    subject_id: int, form: schemas.SubjectUpdate, db: Session = Depends(get_db)
+):
     """서브젝트를 수정합니다."""
     subject = crud.get_subject_by_id(db, subject_id)
     if not subject:
@@ -46,7 +49,9 @@ async def update_subject(subject_id: int, form: schemas.SubjectUpdate, db: Sessi
 
 
 @router.patch("/{subject_id}", response_model=schemas.Subject, status_code=status.HTTP_200_OK)
-async def patch_subject(subject_id: int, form: schemas.SubjectPatch, db: Session = Depends(get_db)):
+async def patch_subject(
+    subject_id: int, form: schemas.SubjectPatch, db: Session = Depends(get_db)
+):
     """서브젝트 일부분을 수정합니다."""
     subject = crud.get_subject_by_id(db, subject_id)
     if not subject:
