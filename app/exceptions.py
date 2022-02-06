@@ -7,27 +7,27 @@ class APIException(Exception):
         self.detail = detail
 
 
-class InvalidAuthorizationHeaderError(APIException):
-    def __init__(self):
+class AuthorizationFailedError(APIException):
+    def __init__(self, detail: str = "Authorization failed."):
         super().__init__(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="The Authorization header is invalid.",
+            detail=detail,
         )
 
 
-class UnsupportedTokenTypeError(APIException):
+class AccessDeniedError(APIException):
     def __init__(self):
         super().__init__(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="The token type is not supported.",
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Not enough authority to access this resource.",
         )
 
 
-class InvalidAccessTokenError(APIException):
-    def __init__(self):
+class LoginFailedError(APIException):
+    def __init__(self, detail: str = "Login failed."):
         super().__init__(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="The access token is invalid.",
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=detail,
         )
 
 
@@ -60,12 +60,4 @@ class SubjectDoesNotExistError(APIException):
         super().__init__(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"The subject (id: {subject_id}) does not exist.",
-        )
-
-
-class AccessDeniedError(APIException):
-    def __init__(self):
-        super().__init__(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Not enough authority to access this resource.",
         )
