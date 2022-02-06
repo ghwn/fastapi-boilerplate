@@ -35,6 +35,12 @@
 
 5. Set `DEBUG=1` if you want to see more logs.
 
+### Create database
+
+```
+$ alembic upgrade head
+```
+
 ## Run Server
 
 ```
