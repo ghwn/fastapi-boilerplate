@@ -1,6 +1,5 @@
 import logging
 
-import uvicorn
 from fastapi import Depends, FastAPI
 from sqlalchemy.orm.session import close_all_sessions
 
@@ -52,7 +51,3 @@ async def startup():
 async def shutdown():
     close_all_sessions()
     engine.dispose()
-
-
-if __name__ == "__main__":
-    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
