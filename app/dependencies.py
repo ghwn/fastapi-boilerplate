@@ -5,7 +5,6 @@ from sqlalchemy.orm import Session
 
 from app.database import SessionLocal
 from app.domain.users.crud import get_user_by_username
-from app.domain.users.models import User
 from app.exceptions import AccessDeniedError, AuthorizationFailedError
 from app.security import decode_access_token
 
