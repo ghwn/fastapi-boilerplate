@@ -1,6 +1,7 @@
 import logging
 
-from fastapi import Depends, FastAPI
+from fastapi import Depends, FastAPI, Request
+from fastapi.responses import JSONResponse
 from sqlalchemy.orm.session import close_all_sessions
 
 from app import configs
@@ -9,7 +10,7 @@ from app.dependencies import get_current_user
 from app.domain.auth.routers import router as auth
 from app.domain.subjects.routers import router as subjects
 from app.domain.users.routers import router as users
-from app.middlewares import ExceptionHandlingMiddleware
+from app.exceptions import APIException
 
 
 def create_app():
@@ -19,7 +20,7 @@ def create_app():
         " L%(lineno)s -> %(message)s",
     )
     app_ = FastAPI()
-    app_.add_middleware(ExceptionHandlingMiddleware)
+
     app_.include_router(
         users,
         prefix="/api/v1/users",
@@ -36,18 +37,31 @@ def create_app():
         tags=["Subjects"],
         dependencies=[Depends(get_current_user)],
     )
+
+    @app_.exception_handler(APIException)
+    async def api_exception_handler(request: Request, exc: APIException):
+        return JSONResponse(
+            content={"detail": exc.detail},
+            status_code=exc.status_code,
+        )
+
+    @app_.exception_handler(Exception)
+    async def exception_handler(request: Request, exc: Exception):
+        return JSONResponse(
+            content={"detail": "Internal server error has been occurred."},
+            status_code=500,
+        )
+
+    @app_.on_event("startup")
+    async def startup():
+        engine.connect()
+
+    @app_.on_event("shutdown")
+    async def shutdown():
+        close_all_sessions()
+        engine.dispose()
+
     return app_
 
 
 app = create_app()
-
-
-@app.on_event("startup")
-async def startup():
-    engine.connect()
-
-
-@app.on_event("shutdown")
-async def shutdown():
-    close_all_sessions()
-    engine.dispose()
