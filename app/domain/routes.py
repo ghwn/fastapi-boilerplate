@@ -14,20 +14,28 @@ class APIRequestResponseLoggingRoute(APIRoute):
             request_id = uuid4().hex[:8]
 
             request_body = await request.body()
+
+            if request.headers.get("Content-Type") not in ["application/json"]:
+                request_body = "skip..."
+
             logger.info(
                 "request %s | REQUEST_BODY = %s | %s",
                 request_id,
-                request_body.decode(encoding="UTF-8"),
+                request_body,
                 request.headers,
             )
 
             response: Response = await super_route_handler(request)
             response_body = response.body
+
+            if request.headers.get("Content-Type") not in ["application/json"]:
+                response_body = "skip..."
+
             logger.info(
                 "request %s | STATUS_CODE = %s | RESPONSE_BODY = %s | %s",
                 request_id,
                 response.status_code,
-                response_body.decode(encoding="UTF-8"),
+                response_body,
                 response.headers,
             )
 
