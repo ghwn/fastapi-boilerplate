@@ -19,8 +19,9 @@ class APIRequestResponseLoggingRoute(APIRoute):
                 request_body = "skip..."
 
             logger.info(
-                "request %s | REQUEST_BODY = %s | %s",
+                "request %s | URL = %s | REQUEST_BODY = %s | %s",
                 request_id,
+                request.url.path,
                 request_body,
                 request.headers,
             )
@@ -32,7 +33,7 @@ class APIRequestResponseLoggingRoute(APIRoute):
                 response_body = "skip..."
 
             logger.info(
-                "request %s | STATUS_CODE = %s | RESPONSE_BODY = %s | %s",
+                "response %s | STATUS_CODE = %s | RESPONSE_BODY = %s | %s",
                 request_id,
                 response.status_code,
                 response_body,
