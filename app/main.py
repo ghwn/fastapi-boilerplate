@@ -1,14 +1,12 @@
 import logging
 
-from fastapi import Depends, FastAPI, Request
+from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 from sqlalchemy.orm.session import close_all_sessions
 
 from app import configs
 from app.database import engine
-from app.dependencies import get_current_user
 from app.domain.auth.routers import router as auth
-from app.domain.subjects.routers import router as subjects
 from app.domain.users.routers import router as users
 from app.exceptions import APIException
 
@@ -30,12 +28,6 @@ def create_app():
         auth,
         prefix="/auth",
         tags=["Auth"],
-    )
-    app_.include_router(
-        subjects,
-        prefix="/api/v1/subjects",
-        tags=["Subjects"],
-        dependencies=[Depends(get_current_user)],
     )
 
     @app_.exception_handler(APIException)
