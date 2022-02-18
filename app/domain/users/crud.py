@@ -33,7 +33,7 @@ async def update_user(db: Database, username: str, form: schemas.UserUpdate):
     params = jsonable_encoder(form, by_alias=False, exclude_unset=False, exclude={"password"})
     params["hashed_password"] = get_password_hash(form.password)
     await db.execute(users.update().where(users.c.username == username).values(**params))
-    return db.fetch_one(users.select().where(users.c.username == username))
+    return await db.fetch_one(users.select().where(users.c.username == username))
 
 
 async def patch_user(db: Database, username: str, form: schemas.UserPatch):
@@ -41,7 +41,7 @@ async def patch_user(db: Database, username: str, form: schemas.UserPatch):
     if form.password:
         params["hashed_password"] = get_password_hash(form.password)
     await db.execute(users.update().where(users.c.username == username).values(**params))
-    return db.fetch_one(users.select().where(users.c.username == username))
+    return await db.fetch_one(users.select().where(users.c.username == username))
 
 
 async def delete_user(db: Database, username: str):
