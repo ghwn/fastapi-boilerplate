@@ -37,6 +37,7 @@ class UserPatch(UserBase):
 
 
 class User(UserBase):
+    id: int
     username: str
     is_active: bool
     is_superuser: bool
