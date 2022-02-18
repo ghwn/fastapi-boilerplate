@@ -2,10 +2,9 @@ import logging
 
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
-from sqlalchemy.orm.session import close_all_sessions
 
 from app import configs
-from app.database import engine
+from app.database import database
 from app.domain.auth.routers import router as auth
 from app.domain.users.routers import router as users
 from app.exceptions import APIException
@@ -46,12 +45,11 @@ def create_app():
 
     @app_.on_event("startup")
     async def startup():
-        engine.connect()
+        await database.connect()
 
     @app_.on_event("shutdown")
     async def shutdown():
-        close_all_sessions()
-        engine.dispose()
+        await database.disconnect()
 
     return app_
 

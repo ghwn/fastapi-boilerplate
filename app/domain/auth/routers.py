@@ -1,5 +1,5 @@
+from databases import Database
 from fastapi import APIRouter, Depends, status
-from sqlalchemy.orm import Session
 
 from app.dependencies import get_db
 from app.domain.auth import schemas
@@ -12,9 +12,9 @@ router = APIRouter(route_class=APIRequestResponseLoggingRoute)
 
 
 @router.post("/token", response_model=schemas.Token, status_code=status.HTTP_200_OK)
-async def create_token(form: schemas.LoginForm, db: Session = Depends(get_db)):
+async def create_token(form: schemas.LoginForm, db: Database = Depends(get_db)):
     """Create new token."""
-    user = get_user_by_username(db, form.username)
+    user = await get_user_by_username(db, form.username)
     if not user:
         raise LoginFailedError("Username or password is not correct.")
     if not verify_password(form.password, user.hashed_password):
