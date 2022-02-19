@@ -6,10 +6,24 @@
 
 ### Prerequisites
 
-- Python 3.9+
+- Python 3.9
 - Poetry 1.1.12+
 
-### Set environments
+### Set virtual environment and install dependencies
+
+1. Tell Poetry which Python version to use for this project.
+
+    ```
+    $ poetry env use 3.9
+    ```
+
+2. Install dependencies.
+
+    ```
+    $ poetry install
+    ```
+
+### Set application environments
 
 1. Copy `.env.example` into `.env`.
 
@@ -38,7 +52,7 @@
 ### Create database
 
 ```
-$ alembic upgrade head
+$ poetry run alembic upgrade head
 ```
 
 ## Run Server
