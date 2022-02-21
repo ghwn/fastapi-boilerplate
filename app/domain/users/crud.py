@@ -1,48 +1,67 @@
-from databases import Database
-from fastapi.encoders import jsonable_encoder
+from typing import List, Optional
 
-from app.domain.models import users
-from app.domain.users import schemas
+from fastapi.encoders import jsonable_encoder
+from sqlalchemy.orm import Session
+
+from app.domain.users import models, schemas
 from app.security import get_password_hash
 
 
-async def create_user(db: Database, form: schemas.UserCreate):
+def create_user(db: Session, form: schemas.UserCreate):
     hashed_password = get_password_hash(form.password)
-    created_user_id = await db.execute(
-        users.insert().values(
-            username=form.username,
-            hashed_password=hashed_password,
-            is_active=True,
-            is_superuser=False,
-        )
+    user = models.User(
+        username=form.username,
+        hashed_password=hashed_password,
+        is_active=True,
+        is_superuser=False,
     )
-    return await db.fetch_one(users.select().where(users.c.id == created_user_id))
+    db.add(user)
+    db.commit()
+    db.refresh(user)
+    return user
 
 
-async def get_user_list(db: Database, offset: int = 0, limit: int = 100, **kwargs):
-    return await db.fetch_all(
-        users.select().filter_by(**kwargs).order_by(users.c.id).offset(offset).limit(limit)
+def get_user_list(db: Session, offset: int = 0, limit: int = 100, **kwargs) -> List[models.User]:
+    user_list = (
+        db.query(models.User)
+        .filter_by(**kwargs)
+        .order_by(models.User.id)
+        .offset(offset)
+        .limit(limit)
+        .all()
     )
+    return user_list
 
 
-async def get_user_by_username(db: Database, username: str):
-    return await db.fetch_one(users.select().where(users.c.username == username))
+def get_user_by_username(db: Session, username: str) -> Optional[models.User]:
+    user = db.query(models.User).filter_by(username=username).one_or_none()
+    return user
 
 
-async def update_user(db: Database, username: str, form: schemas.UserUpdate):
+def update_user(db: Session, username: str, form: schemas.UserUpdate) -> models.User:
     params = jsonable_encoder(form, by_alias=False, exclude_unset=False, exclude={"password"})
     params["hashed_password"] = get_password_hash(form.password)
-    await db.execute(users.update().where(users.c.username == username).values(**params))
-    return db.fetch_one(users.select().where(users.c.username == username))
+    users = db.query(models.User).filter_by(username=username)
+    users.update(params)
+    user = users.first()
+    db.commit()
+    db.refresh(user)
+    return user
 
 
-async def patch_user(db: Database, username: str, form: schemas.UserPatch):
+def patch_user(db: Session, username: str, form: schemas.UserPatch) -> models.User:
     params = jsonable_encoder(form, by_alias=False, exclude_unset=True, exclude={"password"})
     if form.password:
         params["hashed_password"] = get_password_hash(form.password)
-    await db.execute(users.update().where(users.c.username == username).values(**params))
-    return db.fetch_one(users.select().where(users.c.username == username))
+    users = db.query(models.User).filter_by(username=username)
+    users.update(params)
+    user = users.first()
+    db.commit()
+    db.refresh(user)
+    return user
 
 
-async def delete_user(db: Database, username: str):
-    await db.execute(users.delete().where(users.c.username == username))
+def delete_user(db: Session, username: str) -> None:
+    user = db.query(models.User).filter_by(username=username).first()
+    db.delete(user)
+    db.commit()

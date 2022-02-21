@@ -19,7 +19,7 @@ ACCESS_TOKEN_EXPIRATION_TIME = 900
 
 # -------------------------------------------------------------------------------------------------
 # Database
-DATABASE_URL = os.getenv("DATABASE_URL") or f"sqlite+aiosqlite:///{ROOT_DIR / 'app.db'}"
+DATABASE_URL = os.getenv("DATABASE_URL") or f"sqlite:///{ROOT_DIR / 'app.db'}"
 
 # https://docs.sqlalchemy.org/en/14/core/engines.html#sqlalchemy.create_engine
 DATABASE_ECHO = DEBUG
