@@ -1,4 +1,6 @@
 .idea
 __pycache__/
+.python-version
+
 *.db
 *.env
