@@ -1,10 +1,9 @@
 from typing import List, Optional
 
-from fastapi.encoders import jsonable_encoder
-from sqlalchemy.orm import Session
-
 from app.domain.users import models, schemas
 from app.security import get_password_hash
+from fastapi.encoders import jsonable_encoder
+from sqlalchemy.orm import Session
 
 
 def create_user(db: Session, form: schemas.UserCreate):
